@@ -1,3 +1,3 @@
 # Backend Practice
 
-This is a practice project using JavaScript.
+This is a practice project for backend.
