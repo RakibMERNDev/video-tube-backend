@@ -340,12 +340,14 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   const { username } = req.params;
 
   if (!username?.trim()) {
-    throw new ApiError(400, "Username is required");
+    throw new ApiError(400, "username is missing");
   }
 
   const channel = await User.aggregate([
     {
-      $match: { username: username?.toLowerCase() },
+      $match: {
+        username: username?.toLowerCase(),
+      },
     },
     {
       $lookup: {
@@ -368,7 +370,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         subscribersCount: {
           $size: "$subscribers",
         },
-        channelSubscribedToCount: {
+        channelsSubscribedToCount: {
           $size: "$subscribedTo",
         },
         isSubscribed: {
@@ -385,7 +387,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         fullName: 1,
         username: 1,
         subscribersCount: 1,
-        channelSubscribedToCount: 1,
+        channelsSubscribedToCount: 1,
         isSubscribed: 1,
         avatar: 1,
         coverImage: 1,
@@ -395,7 +397,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   ]);
 
   if (!channel?.length) {
-    throw new ApiError(404, "Channel not found");
+    throw new ApiError(404, "channel does not exists");
   }
 
   return res
@@ -412,12 +414,12 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         _id: new mongoose.Types.ObjectId(String(req.user._id)),
       },
     },
-
     {
       $lookup: {
         from: "videos",
         localField: "watchHistory",
         foreignField: "_id",
+        as: "watchHistory",
         pipeline: [
           {
             $lookup: {
